@@ -31,12 +31,12 @@ app.get("/api/ansible/", (req, res) => {
                     return;
                 }
                 
-                const playbookPath = './playbook.yml';
+                const playbookPath = '/ansible/playbook.yml';
                 const extraVars = `--extra-vars "ansible_ssh_user=${process.env.USERNAME} ansible_ssh_pass=${process.env.PASSWORD}"`;
                 console.log("executing ansible playbook")
                 // console.log(extraVars)
                 // res.send('Ansible playbook executed successfully')
-                exec(`ansible-playbook -i ${inventoryPath} ${extraVars} ${playbookPath}`, (err, stdout, stderr) => {
+                exec(`docker run -v ./:/ansible/files 172.1.14.168:5001/ansible ansible-playbook -i ${inventoryPath} ${extraVars} ${playbookPath} -e 'ansible_ssh_common_args="-o StrictHostKeyChecking=no"'`, (err, stdout, stderr) => {
                     if (err) {
                         console.error('Error executing Ansible playbook:', err);
                         res.status(500).send('Internal Server Error');
