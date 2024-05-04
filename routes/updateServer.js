@@ -32,7 +32,11 @@ db.query(createTableQuery, (err) => {
 });
 
 module.exports = (req, res) => {
-    const { address, id } = req.body;
+    let { address, id } = req.body;
+    // Remove the subnet mask from the address if it exists
+    if (address.includes('/')) {
+        address = address.split('/')[0];
+    }
     const selectQuery = `SELECT * FROM inventory.inventory WHERE id = ?`;
     const insertQuery = `INSERT INTO inventory.inventory (id, address) VALUES (?, ?)`;
     const updateQuery = `UPDATE inventory.inventory SET address = ? WHERE id = ?`;
