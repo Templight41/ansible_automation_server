@@ -36,7 +36,7 @@ app.get("/api/ansible/", (req, res) => {
                 console.log("executing ansible playbook")
                 // console.log(extraVars)
                 // res.send('Ansible playbook executed successfully')
-                exec(`docker run -v ./:/ansible/files 172.1.14.168:5001/ansible ansible-playbook -i ${inventoryPath} ${extraVars} ${playbookPath} -e 'ansible_ssh_common_args="-o StrictHostKeyChecking=no"'`, (err, stdout, stderr) => {
+                exec(`ansible-playbook -i ${inventoryPath} ${extraVars} ${playbookPath} -e 'ansible_ssh_common_args="-o StrictHostKeyChecking=no"'`, (err, stdout, stderr) => {
                     if (err) {
                         console.error('Error executing Ansible playbook:', err);
                         res.status(500).send('Internal Server Error');
