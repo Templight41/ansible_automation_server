@@ -1,7 +1,7 @@
 const mysql = require('mysql2');
 require('dotenv').config();
 
-const dbURL = `mysql://root:${process.env.DB_PASS}@localhost:3306`;
+const dbURL = `mysql://root:${process.env.DB_PASS}@${process.env.DB_HOSTNAME}:3306`;
 const db = mysql.createConnection(dbURL);
 
 db.connect((err) => {
