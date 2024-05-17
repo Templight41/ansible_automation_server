@@ -2,8 +2,8 @@
 FROM python:3.8
 
 # Install Node.js and npm
-RUN curl -fsSL https://deb.nodesource.com/setup_14.x | bash -
-RUN apt-get update && apt-get install -y nodejs npm
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+RUN apt-get update && apt-get install -y nodejs
 
 # Set the working directory in the container
 WORKDIR /root

@@ -4,11 +4,14 @@ const axios = require('axios');
 const app = express();
 const exec = require('child_process').exec;
 const path = require('path');
+const { spawn } = require('node-pty');
+
 
 app.use(express.json());
 app.set('view engine', 'ejs');
 app.set("views", path.join(__dirname, "views"));
 app.use(express.urlencoded({extended: true}));
+app.use(express.static(__dirname + '/public'));
 
 const updateServer = require('./routes/updateServer');
 const getAllServers = require('./routes/getAllServers');
@@ -72,14 +75,33 @@ app.post("/api/ansible/", (req, res) => {
                     console.log("executing ansible playbook")
                     // console.log(extraVars)
                     // res.send('Ansible playbook executed successfully')
-                    exec(`ansible-playbook -i ${inventoryPath} ${playbookPath} -e 'ansible_ssh_common_args="-o StrictHostKeyChecking=no"'`, (err, stdout, stderr) => {
-                        if (err) {
-                            console.error('Error executing Ansible playbook:', err);
-                            res.status(500).send(stderr);
+                    const command = `ansible-playbook -i ${inventoryPath} ${playbookPath} -e 'ansible_ssh_common_args="-o StrictHostKeyChecking=no"'`;
+
+                    const ptyProcess = spawn('bash', ['-c', command], {
+                        name: 'xterm-color',
+                        cols: 80,
+                        rows: 30,
+                        cwd: process.cwd(),
+                        env: process.env
+                    });
+                    
+                    ptyProcess.on('data', data => {
+                        console.log(data);
+                    });
+                    
+                    ptyProcess.on('exit', (code, signal) => {
+                        if (code !== 0) {
+                            console.error(`Ansible playbook process exited with code ${code}`);
+                            res.status(500).send(`Ansible playbook process exited with code ${code}`);
                             return;
                         }
-                        console.log('Ansible playbook executed successfully:', stdout);
+                        console.log('Ansible playbook executed successfully');
                         res.send('Ansible playbook executed successfully');
+                    });
+                    
+                    ptyProcess.on('error', err => {
+                        console.error('Error executing Ansible playbook:', err);
+                        res.status(500).send(err.message);
                     });
                 })
             });

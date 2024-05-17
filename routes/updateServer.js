@@ -32,13 +32,13 @@ db.query(createTableQuery, (err) => {
 });
 
 module.exports = (req, res) => {
-    let { address, id } = req.body;
+    let { address, id, lab } = req.body;
     // Remove the subnet mask from the address if it exists
     if (address.includes('/')) {
         address = address.split('/')[0];
     }
     const selectQuery = `SELECT * FROM inventory.inventory WHERE id = ?`;
-    const insertQuery = `INSERT INTO inventory.inventory (id, address) VALUES (?, ?)`;
+    const insertQuery = `INSERT INTO inventory.inventory (id, address, lab) VALUES (?, ?, ?)`;
     const updateQuery = `UPDATE inventory.inventory SET address = ? WHERE id = ?`;
     
     // Check if the record with the given ID exists
@@ -60,7 +60,7 @@ module.exports = (req, res) => {
                 });
             } else {
                 // If record doesn't exist, insert a new record
-                db.query(insertQuery, [id, address], (err, result) => {
+                db.query(insertQuery, [id, address, lab], (err, result) => {
                     if (err) {
                         console.error('Error inserting data:', err);
                         res.status(500).send('Error inserting data');

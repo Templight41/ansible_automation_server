@@ -4,11 +4,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link rel="stylesheet" href="xterm/css/xterm.css" />
+    <script src="xterm/lib/xterm.js"></script>
 </head>
 <body>
     <form action="/api/ansible" method="POST">
         <textarea name="playbook" id="playbook" placeholder="Enter playbook data" rows="30" cols="30"></textarea>
         <button>submit</button>
     </form>
+    <div id="terminal"></div>
+      <script>
+        var term = new Terminal();
+        term.open(document.getElementById('terminal'));
+        term.write('Hello from \x1B[1;3;31mxterm.js\x1B[0m $ ')
+      </script>
+
+      <script>
+        const terminalEl = document.querySelector('.terminal');
+
+        window.addEventListener('load', async () => {
+  textareaEl.value = files['index.js'].file.contents;
+  textareaEl.addEventListener('input', (e) => {
+    writeIndexJS(e.currentTarget.value);
+  });
+
+  const terminal = new Terminal({
+    convertEol: true,
+  });
+  terminal.open(terminalEl);
+
+  // Call only once
+  webcontainerInstance = await WebContainer.boot();
+  await webcontainerInstance.mount(files);
+
+  const exitCode = await installDependencies();
+  if (exitCode !== 0) {
+    throw new Error('Installation failed');
+  };
+
+  startDevServer();
+});
+
+      </script>
 </body>
 </html>

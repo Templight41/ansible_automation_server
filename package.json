@@ -10,12 +10,14 @@
   "author": "Armaan Pasha",
   "license": "ISC",
   "dependencies": {
+    "@xterm/xterm": "^5.5.0",
     "axios": "^1.6.8",
     "dotenv": "^16.4.5",
     "ejs": "^3.1.10",
     "express": "^4.19.2",
     "js-yaml": "^4.1.0",
     "mysql2": "^3.9.7",
+    "node-pty": "^1.0.0",
     "path": "^0.12.7"
   }
 }
