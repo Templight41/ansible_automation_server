@@ -1,16 +1,41 @@
 const mysql = require('mysql2');
 require('dotenv').config();
 
-const dbURL = `mysql://root:${process.env.DB_PASS}@${process.env.DB_HOSTNAME}:3306`;
-const db = mysql.createConnection(dbURL);
+const dbConfig = {
+    host: process.env.DB_HOSTNAME,
+    user: 'root',
+    password: process.env.DB_PASS,
+    // database: 'mydatabase',
+    port: 3306
+};
 
-db.connect((err) => {
-    if (err) {
-        console.error('Error connecting to database:', err);
-    } else {
-        console.log('Connected to database');
-    }
-});
+let db;
+
+function handleDisconnect() {
+    db = mysql.createConnection(dbConfig);
+
+    db.connect(err => {
+        if (err) {
+            console.error('Error connecting to database:', err);
+            // Retry connection after 2 seconds if connection fails
+            setTimeout(handleDisconnect, 2000);
+        } else {
+            console.log('Connected to database');
+        }
+    });
+
+    db.on('error', err => {
+        if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+            console.error('Database connection lost, reconnecting...');
+        } else {
+            console.error('Database error:', err);
+            // throw err;
+        }
+        setTimeout(handleDisconnect, 2000);
+    });
+}
+
+handleDisconnect();
 
 const createDatabaseQuery = `CREATE DATABASE IF NOT EXISTS inventory`;
 const createTableQuery = `CREATE TABLE IF NOT EXISTS inventory.inventory (id VARCHAR(255) PRIMARY KEY, address VARCHAR(255))`;
