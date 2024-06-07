@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Playbook</title>
+</head>
+<body>
+    <% playData.map((playbook) => { %>
+        <p><%=playbook.name%> &nbsp; <button onclick="editPlay('<%=playbook.id%>')">edit</button> &nbsp; <button onclick="deletePlay('<%=playbook.id%>')">delete</button></p>
+    <%})%>
+    <br>
+    <br>
+    <br>
+    <button onclick="addPlaybook()">Add Playbook</button>
+
+    <script>
+        function addPlaybook() {
+            let playbookName = prompt("Enter playbook name");
+            let playbook = prompt("Enter playbook")
+            if (playbookName != null && playbook != null) {
+                fetch('/api/addPlaybook', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({name: playbookName, playbook: playbook})
+                })
+                .then(res => res.json())
+                .then(data => {
+                    window.location.reload();
+                })
+            }
+        }
+
+        async function digestMessage(message) {
+            const msgUint8 = new TextEncoder().encode(message); // encode as (utf-8) Uint8Array
+            const hashBuffer = await window.crypto.subtle.digest("SHA-256", msgUint8); // hash the message
+            const hashArray = Array.from(new Uint8Array(hashBuffer)); // convert buffer to byte array
+            const hashHex = hashArray
+                .map((b) => b.toString(16).padStart(2, "0"))
+                .join(""); // convert bytes to hex string
+            return hashHex;
+        }
+
+        async function deletePlay(id) {
+            const confirmDelete = confirm("Are you sure you want to delete this playbook?");
+            const confirmConfirmDelete = confirm("Are you REALLY sure you want to delete this playbook?")
+            let password = prompt("Enter password")
+            await digestMessage(password).then((digestHex) => {console.log(digestHex); password = digestHex});
+            if (confirmConfirmDelete && password === 'b0ee776297c86a8346481b35246d532c529e653310e4c5e263ab425bbe057500') {
+                fetch('/api/deletePlaybook', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({id: id})
+                })
+                .then(res => res.json())
+                .then(data => {
+                    window.location.reload();
+                })
+            }
+        }
+
+        function editPlay(id) {
+            let playbookName = prompt("Enter playbook name");
+            let playbook = prompt("Enter playbook")
+            if (playbook != null) {
+                fetch('/api/editPlaybook', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({id: id, name: playbookName, playbook})
+                })
+                .then(res => res.json())
+                .then(data => {
+                    window.location.reload();
+                })
+            }
+        }
+    </script>
+</body>
+</html>

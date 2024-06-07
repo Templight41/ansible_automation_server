@@ -15,14 +15,14 @@ COPY package-lock.json ./
 # Install Node.js dependencies
 RUN npm install
 
+# Install Ansible
+RUN pip3 install --upgrade pip
+RUN pip3 install ansible
+RUN apt-get install -y sshpass
+RUN rm -rf /var/lib/apt/lists/*
+
 # Copy the rest of your application code
 COPY . ./
-
-# Install Ansible
-RUN pip3 install --upgrade pip && \
-    pip3 install ansible && \
-    apt-get install -y sshpass && \
-    rm -rf /var/lib/apt/lists/*
 
 # Expose the port your app runs on
 EXPOSE 3000

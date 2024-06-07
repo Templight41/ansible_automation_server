@@ -9,42 +9,40 @@
 </head>
 <body>
     <form action="/api/ansible" method="POST">
-        <textarea name="playbook" id="playbook" placeholder="Enter playbook data" rows="30" cols="30"></textarea>
-        <button>submit</button>
+        <%playbookData.map((playbook) => {%>
+            <input type="radio" id="<%=playbook.name%>" value="<%=playbook.id%>" name="playbookId">
+            <label for="<%=playbook.name%>"><%=playbook.name%></label>
+            <br>
+        <%})%>
+        <button onclick="">submit</button>
     </form>
     <div id="terminal"></div>
-      <script>
-        var term = new Terminal();
-        term.open(document.getElementById('terminal'));
-        term.write('Hello from \x1B[1;3;31mxterm.js\x1B[0m $ ')
-      </script>
+    <script>
+      var term = new Terminal();
+      term.open(document.getElementById('terminal'));
+      term.write('\x1B[1;3;31mcseLab\x1B[0m $ ')
 
-      <script>
-        const terminalEl = document.querySelector('.terminal');
+      async function initialize() {
+        await term.reset()
+        await term.write('\x1B[1;3;31mcseLab\x1B[0m $ ')
+      }
 
-        window.addEventListener('load', async () => {
-  textareaEl.value = files['index.js'].file.contents;
-  textareaEl.addEventListener('input', (e) => {
-    writeIndexJS(e.currentTarget.value);
-  });
+      document.querySelector("form").addEventListener("submit", function(event) {
+        event.preventDefault();
+        runPlaybook();
+      });
 
-  const terminal = new Terminal({
-    convertEol: true,
-  });
-  terminal.open(terminalEl);
+      ws = new WebSocket(`ws://${window.location.hostname}:3001`);
+      ws.onmessage = async function(event) {
+        await term.write(event.data);
+      }
+      async function runPlaybook() {
+        await initialize()
+        // await term.write('\x1B[1;3;31mcseLab\x1B[0m $ ')
+        let playbookId = await document.querySelector('input[name="playbookId"]:checked').value;
+        await ws.send(playbookId);
+      }
 
-  // Call only once
-  webcontainerInstance = await WebContainer.boot();
-  await webcontainerInstance.mount(files);
-
-  const exitCode = await installDependencies();
-  if (exitCode !== 0) {
-    throw new Error('Installation failed');
-  };
-
-  startDevServer();
-});
-
-      </script>
+    </script>
 </body>
 </html>

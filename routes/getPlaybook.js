@@ -38,24 +38,30 @@ function handleDisconnect() {
 
 module.exports = (req, res) => {
     handleDisconnect();
+
+    const getAllDataQuery = `SELECT * FROM inventory.playbook`;
     
-    const id = req.params.id;
-    const selectQuery = `SELECT * FROM inventory.inventory WHERE id = ?`;
-    
-    // Retrieve data based on the provided ID
-    db.query(selectQuery, [id], (err, results) => {
+    db.query(getAllDataQuery, (err, results) => {
         if (err) {
             console.error('Error fetching data:', err);
             res.status(500).send('Error fetching data');
         } else {
-            if (results.length === 0) {
-                // If no data found for the provided ID
-                res.status(404).send('Data not found');
-            } else {
-                // If data found, send it as a response
-                console.log('Data fetched:', results[0]);
-                res.status(200).json(results[0]);
-            }
+            console.log('Data fetched:', results);
+            res.status(200).json(results);
         }
+        db.end();
     });
 };
+
+// Close the connection when the app is terminated
+process.on('SIGINT', () => {
+    db.end((err) => {
+        if (err) {
+            console.error('Error closing database connection:', err);
+        } else {
+            console.log('Database connection closed');
+            process.exit();
+        }
+        db.end();
+    });
+});
