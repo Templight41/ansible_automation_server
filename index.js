@@ -179,9 +179,11 @@ app.post("/api/ansible/", (req, res) => {
                 await mongoose.connect(process.env.DB_HOSTNAME + "/ansible")
                 const playbookData = await playbook.findOne({id: req.body.playbookId})
 
+                const playbookContent = yaml.dump(playbookData.playbook)
+
                 console.log(playbookData)
 
-                require('fs').writeFile(playbookPath, playbookData.playbook, err => {
+                require('fs').writeFile(playbookPath, playbookContent, err => {
                     if (err) {
                         console.error('Error writing playbook file:', err);
                         res.status(500).send(err);
